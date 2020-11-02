@@ -207,9 +207,8 @@ defmodule Sentry.Client do
   def request(url, headers, body) do
     json_library = Config.json_library()
 
-    with {:ok, 200, _, body} <- Config.client().post(url, headers, body),
-         {:ok, json} <- json_library.decode(body) do
-      {:ok, Map.get(json, "id")}
+    with {:ok, 200, _, body} <- Config.client().post(url, headers, body) do
+      {:ok, body}
     else
       {:ok, status, headers, _body} ->
         error_header = :proplists.get_value("X-Sentry-Error", headers, "")
@@ -217,6 +216,7 @@ defmodule Sentry.Client do
         {:error, error}
 
       e ->
+        e |> IO.inspect
         {:error, e}
     end
   end
